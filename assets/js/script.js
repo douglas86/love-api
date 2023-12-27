@@ -10,6 +10,19 @@ const resultsModal = new bootstrap.Modal(
 document
   .getElementById("status")
   .addEventListener("click", (e) => getStatus(e));
+document.getElementById("submit").addEventListener("click", (e) => postForm(e));
+
+async function postForm(e) {
+  const form = new FormData(document.getElementById("checksform"));
+
+  const response = await fetch(api_url, {
+    method: "POST",
+    headers: {
+      Authorization: api_key,
+    },
+    body: form,
+  });
+}
 
 async function getStatus(e) {
   const queryString = `${api_url}?api_key=${api_key}`;
