@@ -12,8 +12,29 @@ document
   .addEventListener("click", (e) => getStatus(e));
 document.getElementById("submit").addEventListener("click", (e) => postForm(e));
 
+function processOptions(form) {
+  let optArray = [];
+
+  for (let entry of form.entries()) {
+    if (entry[0] === "options") {
+      optArray.push(entry[1]);
+    }
+  }
+  form.delete("options");
+
+  form.append("options", optArray.join());
+
+  return form;
+}
+
 async function postForm(e) {
-  const form = new FormData(document.getElementById("checksform"));
+  const form = processOptions(
+    new FormData(document.getElementById("checksform")),
+  );
+
+  for (let entry of form.entries()) {
+    console.log(entry);
+  }
 
   const response = await fetch(api_url, {
     method: "POST",
@@ -28,8 +49,23 @@ async function postForm(e) {
   if (response.ok) {
     displayErrors(data);
   } else {
+    displayExceptions(data);
     throw new Error(data.error);
   }
+}
+
+function displayExceptions(data) {
+  const { error, error_no, status_code } = data;
+
+  let heading = `An Exception Occurred`;
+  let results = `<div>The API returned status code ${status_code}</div>`;
+  results += `<div>Error number: <strong>${error_no}</strong></div>`;
+  results += `<div>Error text: <strong>${error}</strong></div>`;
+
+  document.getElementById("resultsModalTitle").innerText = heading;
+  document.getElementById("results-content").innerHTML = results;
+
+  resultsModal.show();
 }
 
 function displayErrors(data) {
